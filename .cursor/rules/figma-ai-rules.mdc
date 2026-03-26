@@ -1,65 +1,44 @@
 ---
-description: Figma AI Rule 태그 규칙 - 피그마 디자인에서 추출 불가능한 데이터를 태그로 전달
+description: Figma AI Rule - 너비(width) 핸드오프 규칙
 alwaysApply: true
 ---
 
-# Figma AI Rule 태그 규칙
+# Figma AI Rule: 너비(Width)
 
-피그마 캔버스의 `Local_AI_Rules` 섹션에 기재된 태그를 해석하는 규칙이다.
+피그마 캔버스의 `Local_AI_Rules`에 기재된 너비 규칙을 해석한다.
 
-## 태그 목록
+## 규칙 형식
 
-| 태그 | 의미 | 처리 방법 |
+```
+레이어명 → width: {값}{단위}
+레이어명 → width: calc({값}{단위} {+|-} {보정}px)
+```
+
+## 단위
+
+| 단위 | 의미 | 기준 |
 |---|---|---|
-| per | 크기를 화면 비율(%)로 구현 | 해당 레이어의 px값 ÷ 화면너비(375px) × 100 |
-| condition | 런타임 조건 분기 | variant 구조를 분석해서 조건별 레이아웃 구현 |
-| format | 동적 텍스트 포맷 | 피그마의 정적 텍스트 대신 지정된 포맷으로 구현 |
-| display | 표시 위치/방법 | 설명에 따라 오버레이, 위치 지정 등 구현 |
-| state | 빈 상태/에러 대체 UI | 데이터 없을 때 fallback UI 구현 |
-| repeat | 동적 반복 아이템 | 지정된 범위만큼 리스트 아이템 반복 렌더링 |
-| text | 텍스트 오버플로 처리 | ellipsis, 줄 수 제한 등 적용 |
-| responsive | 반응형 브레이크포인트 | 지정된 브레이크포인트별 레이아웃 분기 |
-| note | 자연어 보충 설명 | 구현 시 참고 |
+| % | 부모 컨테이너 기준 비율 | 부모 width의 n% |
+| vw | 뷰포트 너비 기준 비율 | 화면 width의 n% |
+| dvw | 동적 뷰포트 너비 | 키보드 등 제외한 실제 화면 너비 |
 
-## 읽는 법
+## 변환 규칙
 
-```
-Rule_컴포넌트명
-──────────────
-Target    컴포넌트명
-
-Logic     [condition: 조건 설명]     ← 조건 아래 규칙들은 조건부 적용
-          레이어명 → 태그            ← 해당 레이어에 태그 적용
-          레이어명 → 태그: 상세값     ← 태그 + 구체적 값
-```
-
-## 예시
-
-피그마 캔버스에 아래와 같이 기재되어 있을 때:
-
-```
-Rule_RecordListItem/thumb
-──────────────
-Target    RecordListItem/thumb
-
-Logic     [condition: 썸네일 ≥ 3장]
-          thumbnail → per
-
-          [condition: 이미지 > 3장]
-          countBadge → display: 3번째 썸네일 위 오버레이
-          countBadge → format: '+'(n-3)
-```
-
-해석:
-1. `[condition: 썸네일 ≥ 3장]` 조건일 때만 아래 규칙 적용
-2. `thumbnail → per`: thumbnail의 px값을 375px 기준 %로 변환해서 구현
-3. `[condition: 이미지 > 3장]`: 이미지가 3장 초과일 때만 아래 규칙 적용
-4. `countBadge → display`: 3번째 썸네일 위에 오버레이
-5. `countBadge → format: '+'(n-3)`: countBadge 텍스트를 동적으로 '+'(총개수-3)으로 표시
+1. 피그마의 px값을 기준 화면(375px)으로 나눠 비율을 계산한다
+2. `width: 60.27%` → 부모 대비 60.27%로 구현
+3. `width: calc(60.27% - 16px)` → 비율에서 고정값을 빼는 수식 적용
+4. 규칙이 없는 레이어는 피그마 디자인 그대로(고정 px) 구현한다
 
 ## 주의사항
 
-- 태그가 없는 레이어는 피그마 디자인 데이터를 그대로 구현한다
-- per 태그가 있어야만 %로 변환한다. 없으면 피그마의 고정 px값을 사용한다
-- condition 뒤에 설명이 없으면 variant 이름에서 조건을 유추한다
-- 피그마에서 추출 가능한 데이터(auto layout, fill, color, font 등)는 태그로 기재하지 않는다
+- 규칙에 명시된 레이어만 가변 너비 적용. 나머지는 피그마 고정값 사용
+- calc() 수식의 보정값(px)은 고정 여백/패딩을 의미한다
+
+---
+
+# 컴포넌트 규칙
+
+## RecordListItem/thumb
+
+thumbnail → width: 60.27%
+thumbGroupRight → width: calc(39.73% - 8px)
