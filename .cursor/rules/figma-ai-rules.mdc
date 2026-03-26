@@ -37,8 +37,6 @@ alwaysApply: true
 ---
 
 # 컴포넌트 규칙
-
 ## RecordListItem/thumb
 
-thumbnail → width: 60.27%
-thumbGroupRight → width: calc(39.73% - 8px)
+Frame 2609279/thumbnailLeft → width: 60.27%
